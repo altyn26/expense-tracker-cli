@@ -1,0 +1,21 @@
+ID,Date,Category,Amount,Description
+18,2026-07-05,Utilities,180.00,Internet bill
+19,2026-07-05,Other,90.00,Miscellaneous
+20,2026-07-05,Food,350.00,Dinner
+17,2026-07-04,Entertainment,120.00,Cinema with friends
+16,2026-07-03,Transport,250.00,Fuel + rickshaw
+14,2026-07-01,Food,700.00,Groceries + Eid stock up
+15,2026-07-01,Rent,1200.00,July house rent
+13,2026-06-20,Education,300.00,Online course
+12,2026-06-14,Health,400.00,Doctor visit + medicine
+11,2026-06-12,Entertainment,90.00,Movie night
+10,2026-06-06,Transport,220.00,Fuel
+8,2026-06-02,Food,500.00,Groceries
+9,2026-06-01,Rent,1200.00,June house rent
+7,2026-05-20,Utilities,150.00,Electricity bill
+6,2026-05-18,Shopping,600.00,New jacket
+5,2026-05-15,Food,350.00,Dinner with friends
+4,2026-05-10,Entertainment,80.00,Netflix subscription
+3,2026-05-05,Transport,200.00,Careem rides
+1,2026-05-03,Food,450.00,Groceries - Al-Fatah
+2,2026-05-01,Rent,1200.00,May house rent

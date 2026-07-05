@@ -1,0 +1,129 @@
+===================================================================
+$ python main.py categories
+===================================================================
+ID | Name         
+---+--------------
+8  | Education    
+5  | Entertainment
+1  | Food         
+7  | Health       
+9  | Other        
+3  | Rent         
+6  | Shopping     
+2  | Transport    
+4  | Utilities    
+
+===================================================================
+$ python main.py view --sort-by date
+===================================================================
+ID | Date       | Category      | Amount  | Description             
+---+------------+---------------+---------+-------------------------
+18 | 2026-07-05 | Utilities     | 180.00  | Internet bill           
+19 | 2026-07-05 | Other         | 90.00   | Miscellaneous           
+20 | 2026-07-05 | Food          | 350.00  | Dinner                  
+17 | 2026-07-04 | Entertainment | 120.00  | Cinema with friends     
+16 | 2026-07-03 | Transport     | 250.00  | Fuel + rickshaw         
+14 | 2026-07-01 | Food          | 700.00  | Groceries + Eid stock up
+15 | 2026-07-01 | Rent          | 1200.00 | July house rent         
+13 | 2026-06-20 | Education     | 300.00  | Online course           
+12 | 2026-06-14 | Health        | 400.00  | Doctor visit + medicine 
+11 | 2026-06-12 | Entertainment | 90.00   | Movie night             
+10 | 2026-06-06 | Transport     | 220.00  | Fuel                    
+8  | 2026-06-02 | Food          | 500.00  | Groceries               
+9  | 2026-06-01 | Rent          | 1200.00 | June house rent         
+7  | 2026-05-20 | Utilities     | 150.00  | Electricity bill        
+6  | 2026-05-18 | Shopping      | 600.00  | New jacket              
+5  | 2026-05-15 | Food          | 350.00  | Dinner with friends     
+4  | 2026-05-10 | Entertainment | 80.00   | Netflix subscription    
+3  | 2026-05-05 | Transport     | 200.00  | Careem rides            
+1  | 2026-05-03 | Food          | 450.00  | Groceries - Al-Fatah    
+2  | 2026-05-01 | Rent          | 1200.00 | May house rent          
+
+===================================================================
+$ python main.py budget --month 2026-07 --set 3000
+===================================================================
+Budget for 2026-07 set to 3000.00.
+
+--- Budget Status for 2026-07 ---
+Budget:     3000.00
+Spent:      2890.00
+Remaining:  110.00
+Used:       96.33%
+⚠️  WARNING: You have used over 96.33% of your budget.
+
+===================================================================
+$ python main.py report --type monthly --month 2026-07
+===================================================================
+
+=== Monthly Report (2026-07) ===
+Total spent:    2890.00
+Transactions:   7
+Average:        412.86
+Highest:        [15] 2026-07-01 | Rent         |    1200.00 | July house rent
+Lowest:         [19] 2026-07-05 | Other        |      90.00 | Miscellaneous
+Most used cat.: Food
+
+Category breakdown:
+  Utilities           180.00
+  Other                90.00
+  Food               1050.00
+  Entertainment       120.00
+  Transport           250.00
+  Rent               1200.00
+
+===================================================================
+$ python main.py search --keyword groceries
+===================================================================
+ID | Date       | Category | Amount | Description             
+---+------------+----------+--------+-------------------------
+14 | 2026-07-01 | Food     | 700.00 | Groceries + Eid stock up
+8  | 2026-06-02 | Food     | 500.00 | Groceries               
+1  | 2026-05-03 | Food     | 450.00 | Groceries - Al-Fatah    
+
+===================================================================
+$ python main.py filter --category Food
+===================================================================
+ID | Date       | Category | Amount | Description             
+---+------------+----------+--------+-------------------------
+20 | 2026-07-05 | Food     | 350.00 | Dinner                  
+14 | 2026-07-01 | Food     | 700.00 | Groceries + Eid stock up
+8  | 2026-06-02 | Food     | 500.00 | Groceries               
+5  | 2026-05-15 | Food     | 350.00 | Dinner with friends     
+1  | 2026-05-03 | Food     | 450.00 | Groceries - Al-Fatah    
+
+===================================================================
+$ python main.py export --type all
+===================================================================
+Exported to: /home/claude/expense_tracker/exports/expenses_20260705_101212.csv
+
+===================================================================
+$ python main.py export --type monthly --month 2026-07
+===================================================================
+Exported to: /home/claude/expense_tracker/exports/report_20260705_101212.csv
+
+===================================================================
+$ python main.py chart --type bar --month 2026-07
+===================================================================
+Chart saved to: /home/claude/expense_tracker/charts/bar_chart_20260705_101212.png
+
+===================================================================
+$ python main.py chart --type pie --month 2026-07
+===================================================================
+Chart saved to: /home/claude/expense_tracker/charts/pie_chart_20260705_101213.png
+
+===================================================================
+$ python main.py chart --type trend
+===================================================================
+Chart saved to: /home/claude/expense_tracker/charts/monthly_trend_20260705_101213.png
+
+===================================================================
+$ python main.py add --amount -20 --category Food --date 2026-07-05
+(demonstrating validation: negative amount rejected)
+===================================================================
+Error: Amount must be at least 0.01. Negative or zero expenses are not allowed.
+
+===================================================================
+$ python main.py categories --add Food
+(demonstrating validation: duplicate category rejected)
+===================================================================
+Error: Category 'Food' already exists.

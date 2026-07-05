@@ -1,0 +1,24 @@
+Report,Monthly Report (2026-07)
+Total,2890.00
+Count,7
+Average,412.86
+Highest,[15] 2026-07-01 | Rent         |    1200.00 | July house rent
+Lowest,[19] 2026-07-05 | Other        |      90.00 | Miscellaneous
+Most Used Category,Food
+
+Category,Total Spent
+Utilities,180.00
+Other,90.00
+Food,1050.00
+Entertainment,120.00
+Transport,250.00
+Rent,1200.00
+
+ID,Date,Category,Amount,Description
+18,2026-07-05,Utilities,180.00,Internet bill
+19,2026-07-05,Other,90.00,Miscellaneous
+20,2026-07-05,Food,350.00,Dinner
+17,2026-07-04,Entertainment,120.00,Cinema with friends
+16,2026-07-03,Transport,250.00,Fuel + rickshaw
+14,2026-07-01,Food,700.00,Groceries + Eid stock up
+15,2026-07-01,Rent,1200.00,July house rent
