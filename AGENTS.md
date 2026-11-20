@@ -19,7 +19,7 @@ This repository is used for a university software-engineering assignment
 - `reports.py`     Reports and CSV export.
 - `visualization.py` Charts (matplotlib, imported at module level by `main.py`).
 - `config.py`      Constants (`DATABASE_PATH`, `DATE_FORMAT`, amount limits).
-- `seed_sample_data.py` Demo data script (may write to the default database: verify before running).
+- `seed_sample_data.py` Demo data script. Creates DatabaseManager() on the default path (expenses.db) at module level, with no __main__ guard, so running or importing it modifies expenses.db.
 
 Dependency direction: `main` -> `services` -> `database`. Keep business
 rules in `services.py` / `utils.py`, not in `main.py`.
