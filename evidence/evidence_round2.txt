@@ -1,0 +1,152 @@
+]633;E;echo "=== 1. category case-insensitivity ===";abe9ed33-bdc3-4524-b9bb-33fbc0988ee9]633;C=== 1. category case-insensitivity ===
+'Zebra' -> DuplicateCategoryError Category 'Zebra' already exists.
+'zebra' -> DuplicateCategoryError Category 'zebra' already exists.
+'ZEBRA' -> DuplicateCategoryError Category 'ZEBRA' already exists.
+' zebra ' -> DuplicateCategoryError Category 'zebra' already exists.
+=== 2. seed script ===
+12:from database import DatabaseManager
+15:db = DatabaseManager()
+=== 3. main.py menu region ===
+
+def run_interactive_menu(
+    expense_manager: ExpenseManager,
+    category_manager: CategoryManager,
+    budget_manager: BudgetManager,
+    report_generator: ReportGenerator,
+    csv_exporter: CSVExporter,
+    chart_generator: ChartGenerator,
+) -> None:
+    """
+    A simple numbered text menu, looped until the user chooses to exit.
+
+    This exists alongside the argparse commands because recruiters and
+    beginners often find a guided menu easier to demo live than
+    remembering flag names. Both interfaces share the exact same
+    service-layer methods underneath — proof that the business logic is
+    properly decoupled from any one "front end."
+    """
+    menu = """
+==============================
+   EXPENSE TRACKER - MAIN MENU
+==============================
+1. Add expense
+2. View all expenses
+3. Delete expense
+4. View categories
+5. Add category
+6. Set / check monthly budget
+7. Monthly report
+8. Export all expenses to CSV
+9. Generate charts (bar + pie) for a month
+0. Exit
+"""
+    while True:
+        print(menu)
+        choice = input("Choose an option: ").strip()
+
+        try:
+            if choice == "1":
+                amount = input("Amount: ").strip()
+                category_name = input("Category: ").strip()
+                date = input("Date (YYYY-MM-DD): ").strip()
+                description = input("Description (optional): ").strip()
+                category = category_manager.get_category_by_name(category_name)
+                if category is None:
+                    print(f"Category '{category_name}' not found.")
+                    continue
+                expense = expense_manager.add_expense(amount, category.id, date, description)
+                print(f"Added: {expense}")
+
+            elif choice == "2":
+                _print_expenses_table(expense_manager.get_all_expenses())
+
+            elif choice == "3":
+                expense_id = int(input("Expense ID to delete: ").strip())
+                expense_manager.delete_expense(expense_id)
+                print("Deleted.")
+
+            elif choice == "4":
+                categories = category_manager.get_all_categories()
+                print_table(["ID", "Name"], [[c.id, c.name] for c in categories])
+
+            elif choice == "5":
+                name = input("New category name: ").strip()
+                category = category_manager.create_category(name)
+                print(f"Created: {category}")
+
+            elif choice == "6":
+                month = input(f"Month (YYYY-MM) [{current_month()}]: ").strip() or current_month()
+                set_amount = input("Set new budget amount (leave blank to just check): ").strip()
+                if set_amount:
+                    budget_manager.set_budget(month, set_amount)
+                status = budget_manager.get_budget_status(month)
+                _print_budget_status(status)
+
+            elif choice == "7":
+                month = input(f"Month (YYYY-MM) [{current_month()}]: ").strip() or current_month()
+                report = report_generator.monthly_report(month)
+                _print_report(report)
+
+            elif choice == "8":
+=== 4. reports.py head ===
+"""
+reports.py
+==========
+Contains ReportGenerator (computes statistics/summaries) and CSVExporter
+(writes expense data to CSV files).
+
+Separating "computing a report" from "displaying a report" (done in
+main.py) and from "exporting a report" (CSVExporter) keeps each class
+focused on exactly one job — a principle called the Single Responsibility
+Principle (SRP). It's one of the most reused ideas in professional
+software design, including throughout Django's own codebase.
+"""
+
+import csv
+from collections import Counter
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+from config import EXPORTS_DIR
+from models import Expense
+from services import ExpenseManager
+
+
+class ReportGenerator:
+    """
+    Computes statistics and summaries over a list of expenses.
+
+    Every method here takes a pre-fetched list[Expense] rather than
+    querying the database itself. This makes ReportGenerator easy to
+    test (you can pass in a hand-built list of fake Expense objects) and
+    keeps database access confined to ExpenseManager/DatabaseManager.
+    """
+
+    def __init__(self, expense_manager: ExpenseManager) -> None:
+        self.expense_manager = expense_manager
+
+    def total_expenses(self, expenses: list[Expense]) -> float:
+        """Sum of all expense amounts. Returns 0.0 for an empty list."""
+        return round(sum(expense.amount for expense in expenses), 2)
+
+    def category_breakdown(self, expenses: list[Expense]) -> dict[str, float]:
+        """
+        Return {category_name: total_spent} for the given expenses.
+
+        We use a plain dict + manual accumulation rather than a
+        third-party library, keeping this dependency-free and easy to
+        understand line by line.
+        """
+        breakdown: dict[str, float] = {}
+        for expense in expenses:
+            name = expense.category_name or f"Category#{expense.category_id}"
+            breakdown[name] = breakdown.get(name, 0) + expense.amount
+        return {name: round(total, 2) for name, total in breakdown.items()}
+
+    def highest_expense(self, expenses: list[Expense]) -> Optional[Expense]:
+        """Return the single largest expense, or None if the list is empty."""
+        if not expenses:
+            return None
+        return max(expenses, key=lambda e: e.amount)
+=== DONE ===

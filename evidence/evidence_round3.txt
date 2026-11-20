@@ -1,0 +1,131 @@
+]633;E;grep --color=auto -n -E "ChartGenerator|chart_generator|matplotlib" main.py visualization.py;abe9ed33-bdc3-4524-b9bb-33fbc0988ee9]633;Cmain.py:35:from visualization import ChartGenerator
+main.py:175:def handle_chart(args, report_generator: ReportGenerator, chart_generator: ChartGenerator) -> None:
+main.py:186:        path = chart_generator.bar_chart(breakdown, title=f"Spending by Category ({month})")
+main.py:188:        path = chart_generator.pie_chart(breakdown, title=f"Spending Distribution ({month})")
+main.py:197:        path = chart_generator.monthly_trend_line_chart(monthly_totals)
+main.py:257:    chart_generator: ChartGenerator,
+main.py:340:                bar_path = chart_generator.bar_chart(report["category_breakdown"], title=f"Spending by Category ({month})")
+main.py:341:                pie_path = chart_generator.pie_chart(report["category_breakdown"], title=f"Spending Distribution ({month})")
+main.py:469:        chart_generator = ChartGenerator()
+main.py:478:                    report_generator, csv_exporter, chart_generator,
+main.py:501:                handle_chart(args, report_generator, chart_generator)
+visualization.py:4:ChartGenerator: turns expense data into saved chart image files using
+visualization.py:5:matplotlib, our only third-party dependency.
+visualization.py:7:Why matplotlib and not something fancier?
+visualization.py:9:matplotlib is the most widely used, most universally installed Python
+visualization.py:19:import matplotlib
+visualization.py:23:# this line, matplotlib may crash with "no display found" errors.
+visualization.py:24:matplotlib.use("Agg")
+visualization.py:26:import matplotlib.pyplot as plt
+visualization.py:33:class ChartGenerator:
+visualization.py:35:    Generates and saves matplotlib charts as PNG files inside charts/.
+visualization.py:39:        2. Build the plot with matplotlib.
+visualization.py:44:    charts in a loop without closing each figure, matplotlib keeps all of
+visualization.py:137:        This demonstrates a slightly more advanced matplotlib technique:
+visualization.py:139:        an offset, since matplotlib doesn't do "grouped bars" natively.
+=== main.py 440-512 ===
+    chart_parser.add_argument("--type", required=True, choices=["bar", "pie", "trend"])
+    chart_parser.add_argument("--month")
+
+    # --- menu ---
+    subparsers.add_parser("menu", help="Launch the interactive text menu")
+
+    return parser
+
+
+def main() -> None:
+    """
+    Application entry point:
+        1. Ensure folders exist.
+        2. Open the database (creates tables/seeds categories if needed).
+        3. Build all service-layer objects, injecting the shared db.
+        4. Parse CLI args and dispatch to the right handler — or launch
+           the interactive menu if no command (or 'menu') was given.
+        5. Always close the database connection on the way out, even if
+           an error occurred (the try/finally guarantees this).
+    """
+    ensure_directories_exist()
+    db = DatabaseManager()
+
+    try:
+        expense_manager = ExpenseManager(db)
+        category_manager = CategoryManager(db)
+        budget_manager = BudgetManager(db, expense_manager)
+        report_generator = ReportGenerator(expense_manager)
+        csv_exporter = CSVExporter()
+        chart_generator = ChartGenerator()
+
+        parser = build_parser()
+        args = parser.parse_args()
+
+        try:
+            if args.command is None or args.command == "menu":
+                run_interactive_menu(
+                    expense_manager, category_manager, budget_manager,
+                    report_generator, csv_exporter, chart_generator,
+                )
+            elif args.command == "add":
+                handle_add(args, expense_manager, category_manager)
+            elif args.command == "view":
+                handle_view(args, expense_manager)
+            elif args.command == "update":
+                handle_update(args, expense_manager, category_manager)
+            elif args.command == "delete":
+                handle_delete(args, expense_manager)
+            elif args.command == "search":
+                handle_search(args, expense_manager)
+            elif args.command == "filter":
+                handle_filter(args, expense_manager, category_manager)
+            elif args.command == "categories":
+                handle_categories(args, category_manager)
+            elif args.command == "budget":
+                handle_budget(args, budget_manager)
+            elif args.command == "report":
+                handle_report(args, report_generator)
+            elif args.command == "export":
+                handle_export(args, expense_manager, report_generator, csv_exporter)
+            elif args.command == "chart":
+                handle_chart(args, report_generator, chart_generator)
+
+        except (ValidationError, DuplicateCategoryError) as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    main()
+=== visualization.py 1-30 ===
+"""
+visualization.py
+=================
+ChartGenerator: turns expense data into saved chart image files using
+matplotlib, our only third-party dependency.
+
+Why matplotlib and not something fancier?
+--------------------------------------------
+matplotlib is the most widely used, most universally installed Python
+plotting library. It has zero web-framework dependencies, works entirely
+offline, and produces static image files — perfect for a CLI tool that
+needs to save charts to disk rather than display them in a browser.
+"""
+
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+import matplotlib
+# "Agg" is a non-interactive backend that renders directly to image files
+# instead of trying to open a GUI window. This is ESSENTIAL for a CLI tool
+# running in a terminal (or server) with no display available — without
+# this line, matplotlib may crash with "no display found" errors.
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt
+
+from config import CHARTS_DIR
+from models import Expense
+from services import ExpenseManager
+=== DONE ===
