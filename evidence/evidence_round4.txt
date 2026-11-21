@@ -1,0 +1,126 @@
+]633;E;grep --color=auto -n -E "plt\\.|def |class |__init__" visualization.py;a2a629ed-ff21-4c70-9154-d054394f19cf]633;C33:class ChartGenerator:
+40:        3. Save it to disk with plt.savefig().
+41:        4. Close the figure with plt.close() to free memory.
+48:    def __init__(self, charts_dir: Path = CHARTS_DIR) -> None:
+51:    def _timestamped_filename(self, prefix: str) -> Path:
+57:    def bar_chart(self, category_totals: dict[str, float], title: str = "Spending by Category") -> Path:
+67:        plt.figure(figsize=(10, 6))
+68:        plt.bar(categories, totals, color="#4C72B0")
+69:        plt.title(title)
+70:        plt.xlabel("Category")
+71:        plt.ylabel("Amount Spent")
+72:        plt.xticks(rotation=45, ha="right")
+73:        plt.tight_layout()  # prevents axis labels from being cut off
+76:        plt.savefig(filepath)
+77:        plt.close()
+80:    def pie_chart(self, category_totals: dict[str, float], title: str = "Spending Distribution") -> Path:
+89:        plt.figure(figsize=(8, 8))
+90:        plt.pie(totals, labels=categories, autopct="%1.1f%%", startangle=90)
+91:        plt.title(title)
+92:        plt.axis("equal")  # ensures the pie is drawn as a circle, not an oval
+93:        plt.tight_layout()
+96:        plt.savefig(filepath)
+97:        plt.close()
+100:    def monthly_trend_line_chart(
+114:        plt.figure(figsize=(10, 6))
+115:        plt.plot(sorted_months, totals, marker="o", color="#DD8452", linewidth=2)
+116:        plt.title(title)
+117:        plt.xlabel("Month")
+118:        plt.ylabel("Total Spent")
+119:        plt.xticks(rotation=45, ha="right")
+120:        plt.grid(True, linestyle="--", alpha=0.5)
+121:        plt.tight_layout()
+124:        plt.savefig(filepath)
+125:        plt.close()
+128:    def category_comparison_chart(
+150:        plt.figure(figsize=(10, 6))
+151:        plt.bar(
+158:        plt.bar(
+165:        plt.xticks(list(x_positions), all_categories, rotation=45, ha="right")
+166:        plt.title(title)
+167:        plt.xlabel("Category")
+168:        plt.ylabel("Amount Spent")
+169:        plt.legend()
+170:        plt.tight_layout()
+173:        plt.savefig(filepath)
+174:        plt.close()
+=== visualization.py 30-60 ===
+from services import ExpenseManager
+
+
+class ChartGenerator:
+    """
+    Generates and saves matplotlib charts as PNG files inside charts/.
+
+    Every method follows the same shape:
+        1. Prepare the data (aggregate expenses into x/y values).
+        2. Build the plot with matplotlib.
+        3. Save it to disk with plt.savefig().
+        4. Close the figure with plt.close() to free memory.
+
+    Step 4 matters more than beginners expect: if you generate many
+    charts in a loop without closing each figure, matplotlib keeps all of
+    them in memory, which can slow down or crash a long-running script.
+    """
+
+    def __init__(self, charts_dir: Path = CHARTS_DIR) -> None:
+        self.charts_dir = charts_dir
+
+    def _timestamped_filename(self, prefix: str) -> Path:
+        """Shared helper to build a unique output filename, avoiding
+        overwriting a previous chart of the same type."""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        return self.charts_dir / f"{prefix}_{timestamp}.png"
+
+    def bar_chart(self, category_totals: dict[str, float], title: str = "Spending by Category") -> Path:
+        """
+        Create a bar chart: one bar per category, height = total spent.
+
+=== models.py 55-100 ===
+        return self.name
+
+
+@dataclass
+class Expense:
+    """
+    Represents a single expense entry.
+
+    Attributes:
+        id: Database primary key. None until the expense has been saved.
+        amount: The expense amount in currency units (always positive —
+                enforced in services.py, not here, since validation is a
+                business-logic concern, not a data-shape concern).
+        category_id: Foreign key pointing to a Category's id.
+        description: Free-text note about the expense (optional).
+        date: ISO-format date string "YYYY-MM-DD".
+        category_name: NOT stored in the expenses table itself — this is
+                populated only when we JOIN with the categories table, so
+                we can display "Food" instead of just "3" in reports.
+                It defaults to None and is filled in by DatabaseManager
+                query results when relevant.
+    """
+    id: Optional[int]
+    amount: float
+    category_id: int
+    date: str
+    description: str = ""
+    category_name: Optional[str] = None
+
+    def __str__(self) -> str:
+        """
+        Human-readable one-line summary, used throughout the CLI when
+        listing expenses.
+
+        Example: "[12] 2026-07-05 | Food       | 450.00 | Lunch with friends"
+
+        :<10 means "left-align in a field 10 characters wide" — this is
+        what keeps table-style CLI output visually aligned in columns.
+        """
+        category_display = self.category_name or f"Category#{self.category_id}"
+        return (
+            f"[{self.id}] {self.date} | "
+            f"{category_display:<12} | "
+            f"{self.amount:>10.2f} | "
+            f"{self.description}"
+        )
+=== DONE ===

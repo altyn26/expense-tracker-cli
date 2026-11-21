@@ -16,19 +16,37 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-import matplotlib
-# "Agg" is a non-interactive backend that renders directly to image files
-# instead of trying to open a GUI window. This is ESSENTIAL for a CLI tool
-# running in a terminal (or server) with no display available — without
-# this line, matplotlib may crash with "no display found" errors.
-matplotlib.use("Agg")
-
-import matplotlib.pyplot as plt
 
 from config import CHARTS_DIR
 from models import Expense
 from services import ExpenseManager
 
+
+
+_pyplot = None
+
+
+class _LazyPyplot:
+    """Imports matplotlib only when a chart is actually drawn.
+
+    Keeps the rest of the CLI usable if matplotlib is missing or broken.
+    "Agg" is a non-interactive backend that renders straight to image
+    files; it is required for a CLI with no display available.
+    """
+
+    def __getattr__(self, name):
+        global _pyplot
+        if _pyplot is None:
+            import matplotlib
+
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as real_pyplot
+
+            _pyplot = real_pyplot
+        return getattr(_pyplot, name)
+
+
+plt = _LazyPyplot()
 
 class ChartGenerator:
     """
