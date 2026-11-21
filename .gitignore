@@ -4,3 +4,7 @@ venv/
 .venv/
 *.egg-info/
 .pytest_cache/
+
+# local data (findings F2, F3)
+*.db
+.env
