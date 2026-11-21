@@ -11,6 +11,7 @@ These functions don't belong to any single class — they're pure functions
 multiple modules (services.py, main.py). Grouping them here avoids
 duplicating validation logic in five different places.
 """
+import math
 
 from datetime import datetime
 from typing import Optional
@@ -63,6 +64,8 @@ def validate_amount(raw_amount: str) -> float:
     except (TypeError, ValueError):
         raise ValidationError(f"'{raw_amount}' is not a valid number.")
 
+    if math.isnan(amount):
+        raise ValidationError(f"'{raw_amount}' is not a valid number.")
     if amount < MIN_EXPENSE_AMOUNT:
         raise ValidationError(
             f"Amount must be at least {MIN_EXPENSE_AMOUNT}. Negative or "
